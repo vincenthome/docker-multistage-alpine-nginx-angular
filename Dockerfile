@@ -1,4 +1,4 @@
-FROM alpine:3.10 as build
+FROM alpine:3.10 as nginx-build
 
 # Define build argument for version
 ARG VERSION=1.14.2
@@ -41,13 +41,35 @@ RUN ./configure                                                       \
 RUN ln -sf /dev/stdout /usr/local/nginx/logs/access.log            && \
     ln -sf /dev/stderr /usr/local/nginx/logs/error.log
 
+
+
+# Stage 0, "ng-build", based on Node.js, to build and compile the frontend
+FROM node:alpine as ng-build
+
+WORKDIR /app
+
+COPY package*.json /app/
+
+RUN npm install
+
+COPY ./ /app/
+
+ARG configuration=production
+
+RUN set -x && \
+    npm run build -- --output-path=./dist/out --configuration $configuration
+
+
 FROM scratch
 
 # Customise static content, and configuration
-COPY --from=build /etc/passwd /etc/group /etc/
-COPY --from=build /usr/local/nginx /usr/local/nginx
-COPY index.html /usr/local/nginx/html/
-COPY nginx.conf /usr/local/nginx/conf/ 
+COPY --from=nginx-build /etc/passwd /etc/group /etc/
+COPY --from=nginx-build /usr/local/nginx /usr/local/nginx
+
+COPY --from=ng-build /app/dist/out/ /usr/local/nginx/html
+#COPY index.html /usr/local/nginx/html/
+
+COPY nginx.conf /etc/nginx/conf.d/
 
 # Change default stop signal from SIGTERM to SIGQUIT
 STOPSIGNAL SIGQUIT
