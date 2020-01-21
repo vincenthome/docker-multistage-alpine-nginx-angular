@@ -23,7 +23,7 @@ RUN set -x                                                         && \
         --recv-keys 520A9993A1C052F8       						   && \
     wget -q http://nginx.org/download/nginx-${VERSION}.tar.gz      && \
     wget -q http://nginx.org/download/nginx-${VERSION}.tar.gz.asc  && \
-    gpg --verify nginx-${VERSION}.tar.gz.asc                       && \
+#    gpg --verify nginx-${VERSION}.tar.gz.asc                       && \
     tar -xf nginx-${VERSION}.tar.gz                                && \
     rm -f nginx-${VERSION}.tar.*
 
