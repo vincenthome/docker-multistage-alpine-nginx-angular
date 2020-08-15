@@ -1,4 +1,4 @@
-# docker-multistage-alpine-nginx-webapp
+# docker-multistage-alpine-nginx-angular
 
 ## To run
 ```
